@@ -1,56 +1,55 @@
-import React, { useState } from "react";
 
-export default function App() {
+import { useState } from "react";
+import "./index.css";
+
+function App() {
   const [sinal, setSinal] = useState(null);
-  const [carregando, setCarregando] = useState(false);
-  const [erro, setErro] = useState(null);
-  const [temaEscuro, setTemaEscuro] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
 
   const solicitarSinal = async () => {
-    setCarregando(true);
-    setErro(null);
-    setSinal(null);
+    setLoading(true);
     try {
-      const response = await fetch("https://backend-hjau.onrender.com/api/sinal-bacbo");
-      const data = await response.json();
+      const res = await fetch("https://backend-hjau.onrender.com/api/sinal-bacbo");
+      const data = await res.json();
       setSinal(data);
-    } catch (e) {
-      setErro("Erro ao obter sinal. Tente novamente.");
-    } finally {
-      setCarregando(false);
+    } catch (err) {
+      setSinal({ erro: "Erro ao obter sinal." });
     }
+    setLoading(false);
   };
 
   return (
-    <div className={`${temaEscuro ? "bg-black text-white" : "bg-white text-black"} min-h-screen flex flex-col items-center justify-center transition-colors duration-300`}>
-      <button
-        onClick={() => setTemaEscuro(!temaEscuro)}
-        className="absolute top-4 right-4 text-xl p-2"
-      >
-        {temaEscuro ? "☀️" : "🌙"}
+    <div className={darkMode ? "app dark" : "app light"}>
+      <div className="mode-toggle" onClick={() => setDarkMode(!darkMode)}>
+        {darkMode ? "🌙" : "☀️"}
+      </div>
+      <h1>Painel Bac Bo XPTO</h1>
+      <button className="sinal-btn" onClick={solicitarSinal} disabled={loading}>
+        🚀 {loading ? "Analisando..." : "Solicitar Sinal"}
       </button>
-
-      <h1 className="text-3xl font-bold mb-6">Painel Bac Bo XPTO</h1>
-
-      <button
-        onClick={solicitarSinal}
-        disabled={carregando}
-        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all"
-      >
-        🚀 {carregando ? "Analisando..." : "Solicitar Sinal"}
-      </button>
-
-      {erro && <p className="text-red-500 mt-4">{erro}</p>}
 
       {sinal && (
-        <div className="mt-8 p-6 border rounded-xl shadow-md bg-opacity-10 bg-white backdrop-blur-sm">
-          <h2 className="text-xl font-semibold mb-2">🟢 ENTRADA CONFIRMADA</h2>
-          <p>🚀 Entrar na cor <strong>{sinal.entrada}</strong></p>
-          <p>⚔️ Proteger o <strong>{sinal.protecao}</strong></p>
-          <p>⏱️ Validade do sinal: {sinal.validade} segundos</p>
-          <p>{sinal.resultado === "green" ? "🟢 GREEN" : "🔴 RED"}</p>
+        <div className="sinal-info">
+          {sinal.erro ? (
+            <p className="erro">{sinal.erro}</p>
+          ) : (
+            <>
+              <p className="entrada">
+                🟢 ENTRADA CONFIRMADA<br />
+                🚀 Entrar na cor <span>{sinal.entrada}</span><br />
+                ⚔️ Proteger o <span>{sinal.protecao}</span>
+              </p>
+              <p className="validade">⏱ Validade: {sinal.validade} segundos</p>
+              <p className={`resultado ${sinal.resultado.toLowerCase()}`}>
+                Resultado: {sinal.resultado === "GREEN" ? "🟢 GREEN" : "🔴 RED"}
+              </p>
+            </>
+          )}
         </div>
       )}
     </div>
   );
 }
+
+export default App;
