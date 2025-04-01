@@ -1,55 +1,38 @@
-
 import { useState } from "react";
-import "./index.css";
 
-function App() {
+const App = () => {
   const [sinal, setSinal] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [darkMode, setDarkMode] = useState(true);
 
   const solicitarSinal = async () => {
-    setLoading(true);
     try {
-      const res = await fetch("https://backend-hjau.onrender.com/api/sinal-bacbo");
-      const data = await res.json();
-      setSinal(data);
-    } catch (err) {
-      setSinal({ erro: "Erro ao obter sinal." });
+      const resposta = await fetch("https://backend-hjau.onrender.com/api/sinal-bacbo");
+      const dados = await resposta.json();
+      setSinal(dados);
+    } catch (erro) {
+      console.error("Erro ao solicitar sinal:", erro);
     }
-    setLoading(false);
   };
 
   return (
-    <div className={darkMode ? "app dark" : "app light"}>
-      <div className="mode-toggle" onClick={() => setDarkMode(!darkMode)}>
-        {darkMode ? "🌙" : "☀️"}
-      </div>
-      <h1>Painel Bac Bo XPTO</h1>
-      <button className="sinal-btn" onClick={solicitarSinal} disabled={loading}>
-        🚀 {loading ? "Analisando..." : "Solicitar Sinal"}
+    <div className="min-h-screen flex flex-col items-center justify-center bg-black text-white">
+      <h1 className="text-4xl font-bold mb-6">Painel Bac Bo XPTO</h1>
+      <button
+        onClick={solicitarSinal}
+        className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded text-white font-semibold"
+      >
+        🚀 Solicitar Sinal
       </button>
 
       {sinal && (
-        <div className="sinal-info">
-          {sinal.erro ? (
-            <p className="erro">{sinal.erro}</p>
-          ) : (
-            <>
-              <p className="entrada">
-                🟢 ENTRADA CONFIRMADA<br />
-                🚀 Entrar na cor <span>{sinal.entrada}</span><br />
-                ⚔️ Proteger o <span>{sinal.protecao}</span>
-              </p>
-              <p className="validade">⏱ Validade: {sinal.validade} segundos</p>
-              <p className={`resultado ${sinal.resultado.toLowerCase()}`}>
-                Resultado: {sinal.resultado === "GREEN" ? "🟢 GREEN" : "🔴 RED"}
-              </p>
-            </>
-          )}
+        <div className="mt-8 text-center">
+          <p className="text-green-400 text-xl font-bold">{sinal.mensagem}</p>
+          <p className="mt-2 text-lg">Entrar na cor: <span className="text-blue-300">{sinal.entrada}</span></p>
+          <p className="mt-1 text-lg">⚔️ Proteger o empate: <span className="text-yellow-400">{sinal.proteger}</span></p>
+          <p className="mt-1 text-sm">Validade do sinal: {sinal.validade} segundos</p>
         </div>
       )}
     </div>
   );
-}
+};
 
 export default App;
