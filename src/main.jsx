@@ -1,0 +1,1 @@
+// ReactDOM render com modo escuro/claro
